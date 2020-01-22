@@ -1,8 +1,4 @@
-import re
-import json
 import os
-
-pages = {}
 
 
 def make_file(name, text):
@@ -25,35 +21,49 @@ def format_name(text):
     return text
 
 
-with open("temp.md", encoding="utf-8") as f:
-    file = "".join(f.readlines())
-    chapters = file.split("\n# ")
+def create_big_tree():
+    """
+    Useful for big docs
+    Make sidebar with almost all titles (#, ## and ###)
+    """
+    with open("temp.md", encoding="utf-8") as f:
+        file = "".join(f.readlines())
+        chapters = file.split("\n# ")
 
-    for chapter in chapters:
-        chapter_name = format_name(chapter)
-        pages[chapter_name] = {}
-        sections = chapter.split("\n## ")
+        for chapter in chapters:
+            chapter_name = format_name(chapter)
+            sections = chapter.split("\n## ")
 
-        for section in sections:
-            section_name = format_name(section)
-            pages[chapter_name][section_name] = {}
-            subsections = section.split("\n### ")
+            for section in sections:
+                section_name = format_name(section)
+                subsections = section.split("\n### ")
 
-            for subsection in subsections:
-                subsection_name = format_name(subsection)
+                for subsection in subsections:
+                    subsection_name = format_name(subsection)
 
-                if len(subsections) > 1:
-                    pages[chapter_name][section_name][subsection_name] = "# " + subsection
-                    make_file(chapter_name + "/" + section_name + "/" + subsection_name, "# " + subsection)
-                elif len(sections) > 1:
-                    pages[chapter_name][section_name] = "# " + subsection
-                    make_file(chapter_name + "/" + section_name, "# " + subsection)
-                elif len(chapters) > 1:
-                    pages[chapter_name] = "# " + subsection
-                    make_file(chapter_name, "# " + subsection)
-                else:
-                    pages = "# " + subsection
+                    if len(subsections) > 1:
+                        make_file(chapter_name + "/" + section_name + "/" + subsection_name, "# " + subsection)
+                    elif len(sections) > 1:
+                        make_file(chapter_name + "/" + section_name, "# " + subsection)
+                    elif len(chapters) > 1:
+                        make_file(chapter_name, "# " + subsection)
 
-with open("test.json", "w") as output:
-    json.dump(pages, output)
 
+def create_small_tree():
+    """
+    Useful for small plugins docs
+    Make sidebar with only main titles (#)
+    """
+    with open("temp.md", encoding="utf-8") as f:
+        file = "".join(f.readlines())
+        chapters = file.split("\n# ")
+        i = 0
+
+        for chapter in chapters:
+            chapter_name = format_name(chapter)
+            if len(chapters) > 1:
+                make_file(str(i) + "_" + chapter_name, "# " + chapter)
+                i += 1
+
+
+create_small_tree()
